@@ -39,5 +39,5 @@ Route::prefix('/componente')->group(function () {
 Route::prefix('/administrador')->group(function () {
     Route::post('/add',        [App\Http\Controllers\AdministradorController::class, 'add'])->name('administrador.add');
     Route::get('/remove/{id}', [App\Http\Controllers\AdministradorController::class, 'remove'])->name('administrador.remove');
-    Route::get('/atualizar/{id}', [App\Http\Controllers\AdministradorController::class, 'atualizar'])->name('administrador.atualizar');
+    Route::post('/atualizar/{id}', [App\Http\Controllers\AdministradorController::class, 'atualizar'])->name('administrador.atualizar');
 });
