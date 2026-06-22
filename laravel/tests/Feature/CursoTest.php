@@ -24,9 +24,7 @@ class CursoTest extends TestCase
 
     public function test_add_curso_sem_nome(): void
     {
-        $response = $this->postJson('/api/curso/add', [
-            'periodo' => 'Matutino',
-        ]);
+        $response = $this->postJson('/api/curso/add', ['periodo' => 'Matutino']);
 
         $response->assertStatus(422)
                  ->assertJsonValidationErrors(['nome']);
@@ -34,9 +32,7 @@ class CursoTest extends TestCase
 
     public function test_add_curso_sem_periodo(): void
     {
-        $response = $this->postJson('/api/curso/add', [
-            'nome' => 'Direito',
-        ]);
+        $response = $this->postJson('/api/curso/add', ['nome' => 'Direito']);
 
         $response->assertStatus(422)
                  ->assertJsonValidationErrors(['periodo']);
@@ -68,12 +64,13 @@ class CursoTest extends TestCase
 
     public function test_remove_curso_com_sucesso(): void
     {
-        $this->postJson('/api/curso/add', [
+        $add = $this->postJson('/api/curso/add', [
             'nome'    => 'Administração',
             'periodo' => 'Vespertino',
         ]);
+        $id = $add->json()[0]['id'];
 
-        $response = $this->getJson('/api/curso/remove/1');
+        $response = $this->getJson("/api/curso/remove/{$id}");
 
         $response->assertStatus(200);
     }
@@ -98,12 +95,13 @@ class CursoTest extends TestCase
 
     public function test_atualizar_curso_com_sucesso(): void
     {
-        $this->postJson('/api/curso/add', [
+        $add = $this->postJson('/api/curso/add', [
             'nome'    => 'Contabilidade',
             'periodo' => 'Matutino',
         ]);
+        $id = $add->json()[0]['id'];
 
-        $response = $this->postJson('/api/curso/atualizar/1', [
+        $response = $this->postJson("/api/curso/atualizar/{$id}", [
             'nome'    => 'Contabilidade Atualizada',
             'periodo' => 'Noturno',
         ]);
@@ -125,12 +123,13 @@ class CursoTest extends TestCase
 
     public function test_atualizar_curso_periodo_invalido(): void
     {
-        $this->postJson('/api/curso/add', [
+        $add = $this->postJson('/api/curso/add', [
             'nome'    => 'Pedagogia',
             'periodo' => 'Matutino',
         ]);
+        $id = $add->json()[0]['id'];
 
-        $response = $this->postJson('/api/curso/atualizar/1', [
+        $response = $this->postJson("/api/curso/atualizar/{$id}", [
             'nome'    => 'Pedagogia',
             'periodo' => 'Invalido',
         ]);

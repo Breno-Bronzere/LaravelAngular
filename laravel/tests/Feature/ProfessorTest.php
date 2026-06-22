@@ -85,13 +85,14 @@ class ProfessorTest extends TestCase
 
     public function test_remove_professor_com_sucesso(): void
     {
-        $this->postJson('/api/professor/add', [
+        $add = $this->postJson('/api/professor/add', [
             'nome'     => 'Fábio Torres',
             'email'    => 'fabio@escola.com',
             'telefone' => '11987654321',
         ]);
+        $id = $add->json()[0]['id'];
 
-        $response = $this->getJson('/api/professor/remove/1');
+        $response = $this->getJson("/api/professor/remove/{$id}");
 
         $response->assertStatus(200);
     }
@@ -116,13 +117,14 @@ class ProfessorTest extends TestCase
 
     public function test_atualizar_professor_com_sucesso(): void
     {
-        $this->postJson('/api/professor/add', [
+        $add = $this->postJson('/api/professor/add', [
             'nome'     => 'Gisele Nunes',
             'email'    => 'gisele@escola.com',
             'telefone' => '11987654321',
         ]);
+        $id = $add->json()[0]['id'];
 
-        $response = $this->postJson('/api/professor/atualizar/1', [
+        $response = $this->postJson("/api/professor/atualizar/{$id}", [
             'nome'     => 'Gisele Nunes Atualizada',
             'email'    => 'gisele.nova@escola.com',
             'telefone' => '11911112222',
@@ -146,13 +148,14 @@ class ProfessorTest extends TestCase
 
     public function test_atualizar_professor_email_invalido(): void
     {
-        $this->postJson('/api/professor/add', [
+        $add = $this->postJson('/api/professor/add', [
             'nome'     => 'Hugo Pinto',
             'email'    => 'hugo@escola.com',
             'telefone' => '11987654321',
         ]);
+        $id = $add->json()[0]['id'];
 
-        $response = $this->postJson('/api/professor/atualizar/1', [
+        $response = $this->postJson("/api/professor/atualizar/{$id}", [
             'nome'     => 'Hugo Pinto',
             'email'    => 'nao-e-email',
             'telefone' => '11987654321',

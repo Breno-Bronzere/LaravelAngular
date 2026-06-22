@@ -31,9 +31,7 @@ class AlunoTest extends TestCase
 
     public function test_add_aluno_nome_muito_curto(): void
     {
-        $response = $this->postJson('/api/aluno/add', [
-            'nome' => 'AB',
-        ]);
+        $response = $this->postJson('/api/aluno/add', ['nome' => 'AB']);
 
         $response->assertStatus(422)
                  ->assertJsonValidationErrors(['nome']);
@@ -41,9 +39,7 @@ class AlunoTest extends TestCase
 
     public function test_add_aluno_nome_com_numeros(): void
     {
-        $response = $this->postJson('/api/aluno/add', [
-            'nome' => 'João123',
-        ]);
+        $response = $this->postJson('/api/aluno/add', ['nome' => 'João123']);
 
         $response->assertStatus(422)
                  ->assertJsonValidationErrors(['nome']);
@@ -51,9 +47,7 @@ class AlunoTest extends TestCase
 
     public function test_add_aluno_nome_muito_longo(): void
     {
-        $response = $this->postJson('/api/aluno/add', [
-            'nome' => str_repeat('A', 256),
-        ]);
+        $response = $this->postJson('/api/aluno/add', ['nome' => str_repeat('A', 256)]);
 
         $response->assertStatus(422)
                  ->assertJsonValidationErrors(['nome']);
@@ -63,9 +57,10 @@ class AlunoTest extends TestCase
 
     public function test_remove_aluno_com_sucesso(): void
     {
-        $this->postJson('/api/aluno/add', ['nome' => 'Maria Souza']);
+        $add = $this->postJson('/api/aluno/add', ['nome' => 'Maria Souza']);
+        $id  = $add->json()[0]['id'];
 
-        $response = $this->getJson('/api/aluno/remove/1');
+        $response = $this->getJson("/api/aluno/remove/{$id}");
 
         $response->assertStatus(200);
     }
@@ -90,9 +85,10 @@ class AlunoTest extends TestCase
 
     public function test_atualizar_aluno_com_sucesso(): void
     {
-        $this->postJson('/api/aluno/add', ['nome' => 'Carlos Lima']);
+        $add = $this->postJson('/api/aluno/add', ['nome' => 'Carlos Lima']);
+        $id  = $add->json()[0]['id'];
 
-        $response = $this->postJson('/api/aluno/atualizar/1', [
+        $response = $this->postJson("/api/aluno/atualizar/{$id}", [
             'nome' => 'Carlos Lima Atualizado',
         ]);
 
@@ -112,9 +108,10 @@ class AlunoTest extends TestCase
 
     public function test_atualizar_aluno_sem_nome(): void
     {
-        $this->postJson('/api/aluno/add', ['nome' => 'Pedro Alves']);
+        $add = $this->postJson('/api/aluno/add', ['nome' => 'Pedro Alves']);
+        $id  = $add->json()[0]['id'];
 
-        $response = $this->postJson('/api/aluno/atualizar/1', []);
+        $response = $this->postJson("/api/aluno/atualizar/{$id}", []);
 
         $response->assertStatus(422)
                  ->assertJsonValidationErrors(['nome']);

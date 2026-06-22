@@ -84,13 +84,14 @@ class ComponenteTest extends TestCase
 
     public function test_remove_componente_com_sucesso(): void
     {
-        $this->postJson('/api/componente/add', [
+        $add = $this->postJson('/api/componente/add', [
             'nome'        => 'Geografia',
             'hora_inicio' => '2026-06-22 08:00:00',
             'hora_fim'    => '2026-06-22 10:00:00',
         ]);
+        $id = $add->json()[0]['id'];
 
-        $response = $this->getJson('/api/componente/remove/1');
+        $response = $this->getJson("/api/componente/remove/{$id}");
 
         $response->assertStatus(200);
     }
@@ -115,13 +116,14 @@ class ComponenteTest extends TestCase
 
     public function test_atualizar_componente_com_sucesso(): void
     {
-        $this->postJson('/api/componente/add', [
+        $add = $this->postJson('/api/componente/add', [
             'nome'        => 'Inglês',
             'hora_inicio' => '2026-06-22 08:00:00',
             'hora_fim'    => '2026-06-22 10:00:00',
         ]);
+        $id = $add->json()[0]['id'];
 
-        $response = $this->postJson('/api/componente/atualizar/1', [
+        $response = $this->postJson("/api/componente/atualizar/{$id}", [
             'nome'        => 'Inglês Avançado',
             'hora_inicio' => '2026-06-22 09:00:00',
             'hora_fim'    => '2026-06-22 11:00:00',
@@ -145,13 +147,14 @@ class ComponenteTest extends TestCase
 
     public function test_atualizar_componente_hora_fim_antes_inicio(): void
     {
-        $this->postJson('/api/componente/add', [
+        $add = $this->postJson('/api/componente/add', [
             'nome'        => 'Português',
             'hora_inicio' => '2026-06-22 08:00:00',
             'hora_fim'    => '2026-06-22 10:00:00',
         ]);
+        $id = $add->json()[0]['id'];
 
-        $response = $this->postJson('/api/componente/atualizar/1', [
+        $response = $this->postJson("/api/componente/atualizar/{$id}", [
             'nome'        => 'Português',
             'hora_inicio' => '2026-06-22 12:00:00',
             'hora_fim'    => '2026-06-22 10:00:00',

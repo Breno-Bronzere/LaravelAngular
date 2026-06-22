@@ -42,8 +42,7 @@ class AdministradorTest extends TestCase
 
     public function test_add_administrador_email_invalido(): void
     {
-        $dados = $this->adminValido;
-        $dados['email'] = 'nao-e-email';
+        $dados = array_merge($this->adminValido, ['email' => 'nao-e-email']);
 
         $response = $this->postJson('/api/administrador/add', $dados);
 
@@ -53,8 +52,7 @@ class AdministradorTest extends TestCase
 
     public function test_add_administrador_telefone_incorreto(): void
     {
-        $dados = $this->adminValido;
-        $dados['telefone'] = '1199';
+        $dados = array_merge($this->adminValido, ['telefone' => '1199']);
 
         $response = $this->postJson('/api/administrador/add', $dados);
 
@@ -64,8 +62,7 @@ class AdministradorTest extends TestCase
 
     public function test_add_administrador_cpf_incorreto(): void
     {
-        $dados = $this->adminValido;
-        $dados['cpf'] = '123';
+        $dados = array_merge($this->adminValido, ['cpf' => '123']);
 
         $response = $this->postJson('/api/administrador/add', $dados);
 
@@ -75,8 +72,7 @@ class AdministradorTest extends TestCase
 
     public function test_add_administrador_usuario_com_espacos(): void
     {
-        $dados = $this->adminValido;
-        $dados['usuario'] = 'admin silva';
+        $dados = array_merge($this->adminValido, ['usuario' => 'admin silva']);
 
         $response = $this->postJson('/api/administrador/add', $dados);
 
@@ -86,8 +82,7 @@ class AdministradorTest extends TestCase
 
     public function test_add_administrador_senha_muito_curta(): void
     {
-        $dados = $this->adminValido;
-        $dados['senha'] = '123';
+        $dados = array_merge($this->adminValido, ['senha' => '123']);
 
         $response = $this->postJson('/api/administrador/add', $dados);
 
@@ -97,8 +92,7 @@ class AdministradorTest extends TestCase
 
     public function test_add_administrador_status_invalido(): void
     {
-        $dados = $this->adminValido;
-        $dados['status'] = 'suspenso';
+        $dados = array_merge($this->adminValido, ['status' => 'suspenso']);
 
         $response = $this->postJson('/api/administrador/add', $dados);
 
@@ -108,8 +102,7 @@ class AdministradorTest extends TestCase
 
     public function test_add_administrador_status_inativo(): void
     {
-        $dados = $this->adminValido;
-        $dados['status'] = 'inativo';
+        $dados = array_merge($this->adminValido, ['status' => 'inativo']);
 
         $response = $this->postJson('/api/administrador/add', $dados);
 
@@ -121,9 +114,10 @@ class AdministradorTest extends TestCase
 
     public function test_remove_administrador_com_sucesso(): void
     {
-        $this->postJson('/api/administrador/add', $this->adminValido);
+        $add = $this->postJson('/api/administrador/add', $this->adminValido);
+        $id  = $add->json()[0]['id'];
 
-        $response = $this->getJson('/api/administrador/remove/1');
+        $response = $this->getJson("/api/administrador/remove/{$id}");
 
         $response->assertStatus(200);
     }
@@ -148,14 +142,16 @@ class AdministradorTest extends TestCase
 
     public function test_atualizar_administrador_com_sucesso(): void
     {
-        $this->postJson('/api/administrador/add', $this->adminValido);
+        $add = $this->postJson('/api/administrador/add', $this->adminValido);
+        $id  = $add->json()[0]['id'];
 
-        $dadosNovos = $this->adminValido;
-        $dadosNovos['nome']   = 'Admin Atualizado';
-        $dadosNovos['email']  = 'atualizado@sistema.com';
-        $dadosNovos['status'] = 'inativo';
+        $dadosNovos = array_merge($this->adminValido, [
+            'nome'   => 'Admin Atualizado',
+            'email'  => 'atualizado@sistema.com',
+            'status' => 'inativo',
+        ]);
 
-        $response = $this->postJson('/api/administrador/atualizar/1', $dadosNovos);
+        $response = $this->postJson("/api/administrador/atualizar/{$id}", $dadosNovos);
 
         $response->assertStatus(200)
                  ->assertJsonFragment(['nome' => 'Admin Atualizado']);
@@ -171,12 +167,12 @@ class AdministradorTest extends TestCase
 
     public function test_atualizar_administrador_cpf_invalido(): void
     {
-        $this->postJson('/api/administrador/add', $this->adminValido);
+        $add = $this->postJson('/api/administrador/add', $this->adminValido);
+        $id  = $add->json()[0]['id'];
 
-        $dados = $this->adminValido;
-        $dados['cpf'] = 'cpfinvalido';
+        $dados = array_merge($this->adminValido, ['cpf' => 'cpfinvalido']);
 
-        $response = $this->postJson('/api/administrador/atualizar/1', $dados);
+        $response = $this->postJson("/api/administrador/atualizar/{$id}", $dados);
 
         $response->assertStatus(422)
                  ->assertJsonValidationErrors(['cpf']);
@@ -184,12 +180,12 @@ class AdministradorTest extends TestCase
 
     public function test_atualizar_administrador_status_invalido(): void
     {
-        $this->postJson('/api/administrador/add', $this->adminValido);
+        $add = $this->postJson('/api/administrador/add', $this->adminValido);
+        $id  = $add->json()[0]['id'];
 
-        $dados = $this->adminValido;
-        $dados['status'] = 'bloqueado';
+        $dados = array_merge($this->adminValido, ['status' => 'bloqueado']);
 
-        $response = $this->postJson('/api/administrador/atualizar/1', $dados);
+        $response = $this->postJson("/api/administrador/atualizar/{$id}", $dados);
 
         $response->assertStatus(422)
                  ->assertJsonValidationErrors(['status']);
