@@ -8,8 +8,13 @@ class AlunoController extends Controller
 {
     function add(Request $dados) { 
         $dados->validate([
-                'nome' => 'required|min:3'
-            ]);
+	                'nome' => 'required|min:3|max:255',
+	            ],
+	            [
+	                'nome.required' => 'O campo nome é obrigatório.',
+	                'nome.min' => 'O campo nome deve conter no mínimo 3 caracteres.',
+	                'nome.max' => 'O campo nome deve conter no máximo 255 caracteres.',
+	            ]);
         $aluno = new \App\Models\AlunoModel();
         $aluno::create($dados->all());
 
