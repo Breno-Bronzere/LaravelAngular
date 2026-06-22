@@ -19,74 +19,74 @@
       **/docs/**
       **/prints/**
       **/*.pdf
-on:
-  push:
-    branches: [ main, master, develop ]
-  pull_request:
-    branches: [ main, master, develop ]
+    on:
+      push:
+        branches: [ main, master, develop ]
+      pull_request:
+        branches: [ main, master, develop ]
 
-jobs:
-  test:
-    runs-on: ubuntu-latest
+    jobs:
+      test:
+        runs-on: ubuntu-latest
 
-    services:
-      mysql:
-        image: mysql:8.0
-        env:
-          MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: atividade_test
-        ports:
-          - 3306:3306
-        options: >-
-          --health-cmd="mysqladmin ping"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
+        services:
+          mysql:
+            image: mysql:8.0
+            env:
+              MYSQL_ROOT_PASSWORD: root
+              MYSQL_DATABASE: atividade_test
+            ports:
+              - 3306:3306
+            options: >-
+              --health-cmd="mysqladmin ping"
+              --health-interval=10s
+              --health-timeout=5s
+              --health-retries=5
 
-    steps:
-      - name: Checkout do código
-        uses: actions/checkout@v4
+        steps:
+          - name: Checkout do código
+            uses: actions/checkout@v4
 
-      - name: Configurar PHP 8.2
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.2'
-          extensions: mbstring, bcmath, pdo, pdo_mysql, mysql
-          coverage: xdebug
+          - name: Configurar PHP 8.2
+            uses: shivammathur/setup-php@v2
+            with:
+              php-version: '8.2'
+              extensions: mbstring, bcmath, pdo, pdo_mysql, mysql
+              coverage: xdebug
 
-      - name: Copiar .env de exemplo
-        run: cp laravel/.env.example laravel/.env.testing
+          - name: Copiar .env de exemplo
+            run: cp laravel/.env.example laravel/.env.testing
 
-      - name: Configurar variáveis de ambiente para teste
-        run: |
-          cd laravel
-          sed -i 's/APP_ENV=.*/APP_ENV=testing/' .env.testing
-          sed -i 's/APP_DEBUG=.*/APP_DEBUG=true/' .env.testing
-          sed -i 's/DB_CONNECTION=.*/DB_CONNECTION=mysql/' .env.testing
-          sed -i 's/DB_HOST=.*/DB_HOST=127.0.0.1/' .env.testing
-          sed -i 's/DB_PORT=.*/DB_PORT=3306/' .env.testing
-          sed -i 's/DB_DATABASE=.*/DB_DATABASE=atividade_test/' .env.testing
-          sed -i 's/DB_USERNAME=.*/DB_USERNAME=root/' .env.testing
-          sed -i 's/DB_PASSWORD=.*/DB_PASSWORD=root/' .env.testing
+          - name: Configurar variáveis de ambiente para teste
+            run: |
+              cd laravel
+              sed -i 's/APP_ENV=.*/APP_ENV=testing/' .env.testing
+              sed -i 's/APP_DEBUG=.*/APP_DEBUG=true/' .env.testing
+              sed -i 's/DB_CONNECTION=.*/DB_CONNECTION=mysql/' .env.testing
+              sed -i 's/DB_HOST=.*/DB_HOST=127.0.0.1/' .env.testing
+              sed -i 's/DB_PORT=.*/DB_PORT=3306/' .env.testing
+              sed -i 's/DB_DATABASE=.*/DB_DATABASE=atividade_test/' .env.testing
+              sed -i 's/DB_USERNAME=.*/DB_USERNAME=root/' .env.testing
+              sed -i 's/DB_PASSWORD=.*/DB_PASSWORD=root/' .env.testing
 
-      - name: Instalar dependências Composer
-        run: |
-          cd laravel
-          composer install --no-interaction --prefer-dist --optimize-autoloader
+          - name: Instalar dependências Composer
+            run: |
+              cd laravel
+              composer install --no-interaction --prefer-dist --optimize-autoloader
 
-      - name: Gerar chave da aplicação
-        run: |
-          cd laravel
-          php artisan key:generate --env=testing
+          - name: Gerar chave da aplicação
+            run: |
+              cd laravel
+              php artisan key:generate --env=testing
 
-      - name: Rodar migrations no banco de teste
-        run: |
-          cd laravel
-          php artisan migrate --env=testing --force
+          - name: Rodar migrations no banco de teste
+            run: |
+              cd laravel
+              php artisan migrate --env=testing --force
 
-      - name: Rodar os testes
-        run: |
-          cd laravel
-          php artisan test --env=testing
+          - name: Rodar os testes
+            run: |
+              cd laravel
+              php artisan test --env=testing
 
 
