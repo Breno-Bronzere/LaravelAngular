@@ -1,8 +1,8 @@
-name: Laravel API Tests
+name: Testar e Deploy InfinityFree
 
 on:
   push:
-    branches: [ main, master, develop ]
+    branches: [ main ]
   pull_request:
     branches: [ main, master, develop ]
 
@@ -65,7 +65,55 @@ jobs:
           cd laravel
           php artisan migrate --env=testing --force
 
+      - name: Desativar rate limit para testes
+        run: |
+          cd laravel
+          sed -i 's/RateLimiter::for(.api., function (Request \$request) {/RateLimiter::for("api", function (Request $request) {\n            return Limit::none(); \/\/ desativado em CI/' app/Providers/RouteServiceProvider.php || true
+
       - name: Rodar os testes
         run: |
           cd laravel
           php artisan test --env=testing
+
+  deploy:
+    name: Deploy via FTP para InfinityFree
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Instalar dependências Composer (produção)
+        run: |
+          cd laravel
+          composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
+
+      - name: Configurar .env de produção
+        run: |
+          cd laravel
+          cp .env.example .env
+          sed -i 's/APP_ENV=.*/APP_ENV=production/' .env
+          sed -i 's/APP_DEBUG=.*/APP_DEBUG=false/' .env
+
+      - name: Gerar chave da aplicação
+        run: |
+          cd laravel
+          php artisan key:generate --force
+
+      - name: Enviar arquivos via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./laravel/
+          server-dir: ${{ secrets.FTP_DIR }}/
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            **/tests/**
+            **/.env.testing
+            **/storage/logs/*
